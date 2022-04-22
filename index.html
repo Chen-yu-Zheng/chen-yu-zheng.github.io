@@ -1,1 +1,529 @@
-Hello World
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<meta name="keywords" content="爱情时间轴" />
+<meta name="description" content="ZCY&OYYH的爱情故事" />
+<title>loveTimeline of ZCY&OYYH</title>
+<link href="css/default.css" rel="stylesheet" />
+<link href="css/history.css" rel="stylesheet" />
+<!-- 添加百度统计 -->
+<script src="//yanhaijing.com/assets/plugin/tongji/baidu.js"></script>
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/garden_dev.js"></script>
+<script type="text/javascript" src="js/functions_dev.js"></script>
+</head>
+<body>
+<!-- 代码 开始 -->
+<div id="mainDiv">
+		<div id="content" style="width: 1110px; height: 625px; margin-top: 57px; margin-left: 165px;">
+			<div id="loveHeart">
+				<canvas id="garden" width="670" height="625"></canvas>
+				<div id="words">
+					<div id="messages" style="display: block;">
+						欧阳颖慧和郑晨宇要永远相爱！
+						<div id="elapseClock"><span class="digit">19102</span> 天 <span class="digit">22</span> 时 <span class="digit">16</span> 分 <span class="digit">09</span> 秒</div>
+					</div>
+					<div id="loveu" style="display: block;">
+						要越来越爱!<br> 
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+	<script type="text/javascript">
+		var offsetX = $("#loveHeart").width() / 2;
+		var offsetY = $("#loveHeart").height() / 2 - 55;
+		var displayMode = 1;
+		var together = new Date();
+		together.setFullYear(1970, 0, 0);
+		together.setHours(0);
+		together.setMinutes(0);
+		together.setSeconds(0);
+		together.setMilliseconds(0);
+		
+		$("#loveHeart").click(function(){
+			displayMode *= -1;
+			timeElapse(together, displayMode);
+		});
+		
+		if (!document.createElement('canvas').getContext) {
+			var msg = document.createElement("div");
+			msg.id = "errorMsg";
+			msg.innerHTML = "Your browser doesn't support HTML5!<br/>Recommend use Chrome 14+/IE 9+/Firefox 7+/Safari 4+"; 
+			document.body.appendChild(msg);
+			$("#code").css("display", "none")
+			$("#copyright").css("position", "absolute");
+			$("#copyright").css("bottom", "10px");
+		    document.execCommand("stop");
+		} else {
+			setTimeout(function () {
+				adjustWordsPosition();
+				startHeartAnimation();
+			}, 100);
+
+			timeElapse(together, displayMode);
+			setInterval(function () {
+				timeElapse(together, displayMode);
+			}, 500);
+
+			adjustCodePosition();
+			$("#code").typewriter();
+		}
+	</script>
+<div class="head-warp">
+  <div class="head">
+        <div class="nav-box">
+          <ul>
+              <li class="cur" style="text-align:center; font-size:50px; font-family:'微软雅黑', '宋体';color:#fff">初见乍欢，久处仍怦然</li>
+          </ul>
+        </div>
+  </div>
+</div>
+<div class="main">
+	<div class="history">
+		<div class="history-date">
+	      	<ul>
+				<h2 class="first"><a href="#nogo">2022年</a></h2>
+				<li class="green">
+					<h3>03.11</h3>
+					<dl>
+						<dt>
+							<div class="feed_arrow">
+							</div>		
+							<h4>
+								3月11号，你又开始撩我了。但我真的好喜欢好喜欢，谁不愿意成为你的光呢？要成为彼此的光！
+							</h4>	
+							<div class="wrap">	
+								<img src="photo/20220311.png">
+								<!-- <p>爱，能持续多久？
+								</p> -->
+							</div>									 
+						</dt>
+					</dl>
+				</li>
+				<li class="green">
+					<h3>03.10</h3>
+					<dl>
+						<dt>
+							<div class="feed_arrow">
+							</div>		
+							<h4>
+								这个魔术真的好可爱好可爱呀！你以后要真人演给我看！我已经被你迷住了
+							</h4>	
+							<div class="wrap">	
+								<img src="photo/20220306.png">
+								<!-- <p>爱，能持续多久？
+								</p> -->
+							</div>									 
+						</dt>
+					</dl>
+				</li>
+				<li class="green">
+					<h3>03.08</h3>
+					<dl>
+						<dt>
+							<div class="feed_arrow">
+							</div>		
+							<h4>
+								你看！我又成你精神支柱了！拜托，我当时真的不清楚你到底怎么想的，一整个被你给拖下水迷住了，就想弄明白你的小心思
+							</h4>	
+							<div class="wrap">	
+								<img src="photo/20220308.png">
+								<!-- <p>爱，能持续多久？
+								</p> -->
+							</div>									 
+						</dt>
+					</dl>
+				</li>
+				<li class="green">
+					<h3>03.07</h3>
+					<dl>
+						<dt>
+							<div class="feed_arrow">
+							</div>		
+							<h4>
+								你看！你又在说！还推荐闺蜜呢！不怕我被抢走吗！
+							</h4>	
+							<div class="wrap">	
+								<img src="photo/20220307_4.png">
+								<!-- <p>爱，能持续多久？
+								</p> -->
+							</div>									 
+						</dt>
+					</dl>
+				</li>
+				<li class="green">
+					<h3>03.07</h3>
+					<dl>
+						<dt>
+							<div class="feed_arrow">
+							</div>		
+							<h4>
+								你的同学哪里是乱磕cp，分明就是你肚子里的蛔虫哈哈哈哈哈。我当时其实就不太明白，你到底是暗示我呢还是真的是说我们只能做朋友呢？
+								女人你太会了，有来有回，进进退退
+							</h4>	
+							<div class="wrap">	
+								<img src="photo/20220306.png">
+								<!-- <p>爱，能持续多久？
+								</p> -->
+							</div>									 
+						</dt>
+					</dl>
+				</li>
+				<li class="green">
+					<h3>03.07</h3>
+					<dl>
+						<dt>
+							<div class="feed_arrow">
+							</div>		
+							<h4>
+								对啊对啊，这么美丽的风景当然要一起看，一起杀狗！
+							</h4>	
+							<div class="wrap">	
+								<img src="photo/20220307_2.png">
+								<!-- <p>爱，能持续多久？
+								</p> -->
+							</div>									 
+						</dt>
+					</dl>
+				</li>
+				<li class="green">
+					<h3>03.07</h3>
+					<dl>
+						<dt>
+							<div class="feed_arrow">
+							</div>		
+							<h4>
+								所以初吻还在是加分项吗？
+							</h4>	
+							<div class="wrap">	
+								<img src="photo/20220307_1.png">
+								<!-- <p>爱，能持续多久？
+								</p> -->
+							</div>									 
+						</dt>
+					</dl>
+				</li>
+				<li class="green">
+					<h3>03.06</h3>
+					<dl>
+						<dt>
+							<div class="feed_arrow">
+							</div>		
+							<h4>
+								你的暗示真的真的太强烈了，但我很受用啊~当时我想：一毕业就找一个和我一样的男朋友，那还不如直接找我最好哈哈哈。
+								ps.某人前几天好像刚说再也不想谈了
+							</h4>	
+							<div class="wrap">	
+								<img src="photo/20220306.png">
+								<!-- <p>爱，能持续多久？
+								</p> -->
+							</div>									 
+						</dt>
+					</dl>
+				</li>
+				<li class="green">
+					<h3>03.05</h3>
+					<dl>
+						<dt>
+							<div class="feed_arrow">
+							</div>		
+							<h4>
+								某位非常臭屁的小美女，就不点名了！你臭屁，我就摆烂~
+							</h4>	
+							<div class="wrap">	
+								<img src="photo/20220305_3.png">
+								<!-- <p>爱，能持续多久？
+								</p> -->
+							</div>									 
+						</dt>
+					</dl>
+				</li>
+				<li class="green">
+					<h3>03.05</h3>
+					<dl>
+						<dt>
+							<div class="feed_arrow">
+							</div>		
+							<h4>
+								还没在一起呢，你就暗示我给你跑520捏！放心，包在我身上！
+							</h4>	
+							<div class="wrap">	
+								<img src="photo/20220305_2.png">
+								<!-- <p>爱，能持续多久？
+								</p> -->
+							</div>									 
+						</dt>
+					</dl>
+				</li>
+				<li class="green">
+					<h3>03.05</h3>
+					<dl>
+						<dt>
+							<div class="feed_arrow">
+							</div>		
+							<h4>
+								早樱刚好开啦，第一次给你分享一些漂亮的图片，希望你能在繁重的学习中感受到一些欢乐吧！以后我们要一起看！
+								ps.你还叫我再找一个，就不怕我真的找别的小姐姐了吗！
+							</h4>	
+							<div class="wrap">	
+								<img src="photo/20220305_1.png">
+								<!-- <p>爱，能持续多久？
+								</p> -->
+							</div>									 
+						</dt>
+					</dl>
+				</li>
+				<li class="green">
+					<h3>03.04</h3>
+					<dl>
+						<dt>
+							<div class="feed_arrow">
+							</div>		
+							<h4>
+								才加QQ第二天你就这样撩我！不知道我纯情大学生很容易就上钩吗！你好会！
+							</h4>	
+							<div class="wrap">	
+								<img src="photo/20220304_3.png">
+								<!-- <p>爱，能持续多久？
+								</p> -->
+							</div>									 
+						</dt>
+					</dl>
+				</li>
+				<li class="green">
+					<h3>03.04</h3>
+					<dl>
+						<dt>
+							<div class="feed_arrow">
+							</div>		
+							<h4>
+								哈哈哈哈哈现在回过头来看，这妥妥的是一波男友报备习惯养成记啊！我当时觉得甜，现在还是觉得甜！
+							</h4>	
+							<div class="wrap">	
+								<img src="photo/20220303_4.png">
+								<!-- <p>爱，能持续多久？
+								</p> -->
+							</div>									 
+						</dt>
+					</dl>
+				</li>
+				<li class="green">
+					<h3>03.04</h3>
+					<dl>
+						<dt>
+							<div class="feed_arrow">
+							</div>		
+							<h4>
+								没错，我也不是什么好鸟，反手就是一个反试探嘻嘻嘻！好吧，也不能算纯粹试探，确实也是当时的心里话！
+							</h4>	
+							<div class="wrap">	
+								<img src="photo/20220304_2.png">
+								<!-- <p>爱，能持续多久？
+								</p> -->
+							</div>									 
+						</dt>
+					</dl>
+				</li>
+				<li class="green">
+					<h3>03.04</h3>
+					<dl>
+						<dt>
+							<div class="feed_arrow">
+							</div>		
+							<h4>
+								加QQ的第二天，我现在觉得你这句话在强烈暗示我。你大一我刚好大四哈哈哈哈哈，你真的好可爱好可爱！那就让我这个大四“成熟”男生来陪你吧~
+							</h4>	
+							<div class="wrap">	
+								<img src="photo/20220304_1.png">
+								<!-- <p>爱，能持续多久？
+								</p> -->
+							</div>									 
+						</dt>
+					</dl>
+				</li>
+				<li class="green">
+					<h3>03.03</h3>
+					<dl>
+						<dt>
+							<div class="feed_arrow">
+							</div>		
+							<h4>
+								这句话说得太对了！你的人格能量MAX！我真的抵御不了！
+							</h4>	
+							<div class="wrap">	
+								<img src="photo/20220303_5.png">
+								<!-- <p>爱，能持续多久？
+								</p> -->
+							</div>									 
+						</dt>
+					</dl>
+				</li>
+				<li class="green">
+					<h3>03.03</h3>
+					<dl>
+						<dt>
+							<div class="feed_arrow">
+							</div>		
+							<h4>
+								拜托，聊这段的时候我的心潮和过山车一样哈哈哈。我没想到你第一天就会问我有没有谈过恋爱，我还以为你喜欢没谈过的纯洁小男生呢，没想到你一个四任把我吓到了，我当时第一念头：海王！哈哈哈。当然后面聊了很多，交换了很多之前的经历，我发现你还是很纯情的，嗯，不海！
+								笑死，你还说给我物色对象呢！我当时其实就想：别物色来物色去了，你直接来岂不是最方便哈哈哈哈哈。当时你说不想谈了，要做丁克，现在看来真的是啪啪打脸嘻嘻嘻。
+							</h4>	
+							<div class="wrap">	
+								<img src="photo/20220303_4.png">
+								<!-- <p>爱，能持续多久？
+								</p> -->
+							</div>									 
+						</dt>
+					</dl>
+				</li>
+				<li class="green">
+					<h3>03.03</h3>
+					<dl>
+						<dt>
+							<div class="feed_arrow">
+							</div>		
+							<h4>
+								一开始聊你的画风就这么搞笑哈哈哈哈！你真的好可爱好可爱！你以后就安心刷剧插弹幕吧，我养你！
+							</h4>	
+							<div class="wrap">	
+								<img src="photo/20220303_3.png">
+								<!-- <p>爱，能持续多久？
+								</p> -->
+							</div>									 
+						</dt>
+					</dl>
+				</li>
+				<li class="green">
+					<h3>03.03</h3>
+					<dl>
+						<dt>
+							<div class="feed_arrow">
+							</div>		
+							<h4>
+								拜托，我们终于加QQ了，你的名字真的好好听啊哈哈哈哈！
+							</h4>	
+							<div class="wrap">	
+								<img src="photo/20220303_2.png">
+								<!-- <p>爱，能持续多久？
+								</p> -->
+							</div>									 
+						</dt>
+					</dl>
+				</li>
+				<li class="green">
+					<h3>03.03</h3>
+					<dl>
+						<dt>
+							<div class="feed_arrow">
+							</div>		
+							<h4>
+								那几天我们聊的好多啊哈哈哈哈！和你聊天我的心情都变好了，你就是上天派来的开心果！你也终于“不怀好意”地要我QQ啦，其实我可能也没怀什么“好意”呢哈哈哈
+							</h4>	
+							<div class="wrap">	
+								<img src="photo/20220303.png">
+								<!-- <p>爱，能持续多久？
+								</p> -->
+							</div>									 
+						</dt>
+					</dl>
+				</li>
+				<li class="green">
+					<h3>02.28</h3>
+					<dl>
+						<dt>
+							<div class="feed_arrow">
+							</div>		
+							<h4>
+								你和我说最近没考好，很焦虑，我也很耐心地回了很多，这回我们终于是聊的好长好长啦！那时候的我被一些事缠着也心情不好，感谢自己没有丧失帮助别人的善良，要不然咱们可能就错过了哈哈哈哈！
+							</h4>	
+							<div class="wrap">	
+								<img src="photo/20220228_2.png">
+								<!-- <p>爱，能持续多久？
+								</p> -->
+							</div>									 
+						</dt>
+					</dl>
+				</li>
+				<li class="green">
+					<h3>02.28</h3>
+					<dl>
+						<dt>
+							<div class="feed_arrow">
+							</div>		
+							<h4>
+								又过了快两个月哈哈哈，没想到你百日誓师的时候还记得我！现在想想或许1月份的时候我就该主动找你哈哈哈哈！我当时觉得这个妹妹应该就是一个很纯情的人！
+							</h4>	
+							<div class="wrap">	
+								<img src="photo/20220228.png">
+								<!-- <p>爱，能持续多久？
+								</p> -->
+							</div>									 
+						</dt>
+					</dl>
+				</li>
+				<li class="green">
+					<h3>01.07</h3>
+					<dl>
+						<dt>
+							<div class="feed_arrow">
+							</div>		
+							<h4>
+								时隔一年来私戳我知乎的某人嘻嘻，第一次认识应该是你高二的时候啦，没想到那时的一次回答竟然会让你记了那么久哈哈哈哈
+							</h4>	
+							<div class="wrap">	
+								<img src="photo/20220107.png">
+								<!-- <p>那天，I miss U…
+								</p> -->
+							</div>									 
+						</dt>
+					</dl>
+				</li>									
+			</ul>
+	    </div><!-- .history-date --> 
+	    <div class="history-date">
+	      	<ul>
+				<h2 class="first"><a href="#nogo">2022年</a></h2>
+				<li class="green">
+					<h3>02.28</h3>
+					<dl>
+						<dt>
+							<div class="feed_arrow">
+							</div>		
+							<h4>
+								又过了快两个月哈哈哈，没想到你百日誓师的时候还记得我！现在想想或许1月份的时候我就该主动找你哈哈哈哈！我当时觉得这个妹妹应该就是一个很纯情的人！
+							</h4>	
+							<div class="wrap">	
+								<img src="photo/20220228.png">
+								<!-- <p>爱，能持续多久？
+								</p> -->
+							</div>									 
+						</dt>
+					</dl>
+				</li>					
+			</ul>
+	    </div><!-- .history-date -->
+    </div>		
+</div>
+
+<script src="js/jquery.js"></script> 
+<script src="js/main.js"></script>
+<!-- 代码 结束 -->
+<div id="copyright">
+	&copy; 2014 <a href="http://yanhaijing.com" target="_blank">颜海镜</a>
+	<a class="github" href="https://github.com/yanhaijing/loveTimeline" target="_blank" title="Fork me on GitHub"> <img width="20" height="20" align="Fork me on GitHub" src="images/auth-github.png" /></a>
+ 	<a class="weibo" href="http://weibo.com/yanhaijing1234/profile" target="_blank" title="weibo"> <img width="20" height="20" align="weibo" src="images/auth-weibo.png" /></a>
+  	<a class="alipay" href='http://yanhaijing.com/mywallet/' target="_blank" title="alipay"> <img width="80" height="19" alt="alipay" src='images/btn-index.png' /></a>	
+</div>
+<div style="text-align:center;margin:20px 0 60px 0;line-height:28px">
+	idea from：<a href="http://hackerzhou.me/love/" target="_blank">hackerzhou.me</a><br>
+	Inspired by <a href="http://www.openrise.com/lab/FlowerPower/">FlowerPower</a> project.<br>　
+	lovetime from：<a href="http://www.lanrentuku.com/" target="_blank">懒人图库</a>　<br>
+	memory image from：<a href="http://jianyun.org/archives/136.html" target="_blank">闲云博客</a><br>
+	background-image from: 百度图片		
+</div>
+<a class="bshareDiv" href="https://www.bshare.cn/share">分享按钮</a><script type="text/javascript" charset="utf-8" src="https://static.bshare.cn/b/button.js#uuid=9c63467b-a311-422d-82bb-485c01affd39&amp;style=3&amp;fs=4&amp;textcolor=#fff&amp;bgcolor=#9C3&amp;text=分享到"></script>              
+</body>
+</html>
