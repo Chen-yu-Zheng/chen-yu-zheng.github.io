@@ -1,0 +1,110 @@
+cv:
+  # name: Chenyu Zheng
+  # label: Ph.D. Student
+  # email: chenyu.zheng666@gmail.com
+  # location: Beijing, China
+  # image: profile.jpg
+  # summary: >
+  #   Ph.D. student in the GSAI-ML Group at Renmin University of China,
+  #   advised by Prof. Chongxuan Li. Research interests include machine
+  #   learning theory, optimization, and scalability in deep learning.
+
+  social_networks:
+    - network: GitHub
+      username: Chen-yu-Zheng
+    - network: Google Scholar
+      username: QDfsVgYAAAAJ
+
+  sections:
+    Education:
+      - institution: Renmin University of China
+        area: Gaoling School of Artificial Intelligence
+        studyType: Ph.D. Student
+        location: Beijing, China
+        start_date: 2023
+        end_date: Present
+        highlights:
+          - "Advisor: Prof. Chongxuan Li."
+
+      - institution: Wuhan University
+        area: School of Computer Science
+        studyType: Bachelor of Engineering
+        location: Wuhan, China
+        start_date: 2019
+        end_date: 2023
+        highlights:
+          - "Graduating as a Outstanding Graduate."
+
+    Experience:
+      - company: ByteDance Seed
+        position: Top-Seed Research Intern
+        location: Beijing, China
+        start_date: 2024-11
+        end_date: Present
+        # url: https://seed.bytedance.com/en/
+        highlights:
+          - "Working on μP theory and its applications to scaling large models."
+
+      - company: RSIDEA Group, LIESMARS
+        position: Research Intern
+        location: Wuhan, China
+        start_date: 2021-01
+        end_date: 2022-08
+        # url: http://rsidea.whu.edu.cn/
+        highlights:
+          - "Advisors: Dr. Junjue Wang, Prof. Ailong Ma, and Prof. Yanfei Zhong."
+          - "Conducted research on land-cover classification."
+
+    Honors and Awards:
+      - title: Outstanding Paper Award
+        date: 2026
+        awarder: "ICLR 2026 Delta Workshop"
+
+      - title: Young Scientists (Ph.D.) Fund
+        date: 2025
+        awarder: National Natural Science Foundation of China
+
+      - title: Outstanding Innovative Talents Cultivation Funded Programs
+        date: 2024
+        awarder: Renmin University of China
+
+      - title: Outstanding Graduate & Bachelor Thesis Award
+        date: 2023
+        awarder: Wuhan University
+
+      - title: China National Scholarship
+        date: 2020
+        awarder: Ministry of Education of China
+
+    Talks:
+      - title: "Oral: Spectral Condition for μP under Width-Depth Scaling"
+        date: 2026-04
+        awarder: ICLR 2026 Delta Workshop
+        url: /assets/pdf/slides/2026_4_27_ICLRW.pdf
+
+      - title: "Tutorial: An Overview of Maximal Update Parametrization (μP)"
+        date: 2026-04
+        awarder: TSAIL Group, Tsinghua University
+        url: /assets/pdf/slides/2026_4_9_muP_tutorial.pdf
+
+      - title: "Tutorial: A Brief Review of In-Context Learning Theory"
+        date: 2024-05
+        awarder: Group Session
+        url: /assets/pdf/slides/ICL_slides.pdf
+
+      - title: "Tutorial: Classical Machine Learning Theory"
+        date: 2023-06
+        awarder: Group Session
+        url: /assets/pdf/slides/Classical_learning_theory_slides.pdf
+
+    Academic Services:
+      - bullet: "**Journal Reviewer:** IEEE Transactions on Pattern Analysis and Machine Intelligence (TPAMI); IEEE Transactions on Signal Processing (TSP)."
+      - bullet: "**Conference Reviewer:** Advances in Neural Information Processing Systems (NeurIPS): 2024, 2025 (**Top Reviewer**); International Conference on Machine Learning (ICML): 2025, 2026; International Conference on Learning Representations (ICLR): 2025, 2026; International Conference on Artificial Intelligence and Statistics (AISTATS): 2025, 2026."
+      - bullet: "**Conference Program Committee:** Association for the Advancement of Artificial Intelligence (AAAI): 2026."
+
+    Teaching:
+      - bullet: "**Advanced Linear Algebra**, TA, 2025 Fall"
+      - bullet: "**Probability and Randomized Algorithms**, TA, 2024 Fall"
+
+    Miscellaneous:
+      - bullet: "[Platform Sutra](https://en.wikipedia.org/wiki/Platform_Sutra) and meditation teach me a lot. [[Platform Sutra video](https://www.bilibili.com/video/BV1uZ4y1D787)] [[Meditation video](https://www.bilibili.com/video/BV1Rq4y1F7r4)]"
