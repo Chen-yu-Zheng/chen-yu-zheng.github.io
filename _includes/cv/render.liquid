@@ -180,7 +180,16 @@
                 {% for entry in section_entries %}
                   {% if entry.bullet %}
                     <ul class="card-text font-weight-light list-group list-group-flush">
-                      <li class="list-group-item">{{ entry.bullet | markdownify | remove: '<p>' | remove: '</p>' }}</li>
+                      <li class="list-group-item">
+                        {{ entry.bullet | markdownify | remove: '<p>' | remove: '</p>' }}
+                        {% if entry.subitems %}
+                          <ul class="mt-2 mb-0">
+                            {% for subitem in entry.subitems %}
+                              <li>{{ subitem | markdownify | remove: '<p>' | remove: '</p>' }}</li>
+                            {% endfor %}
+                          </ul>
+                        {% endif %}
+                      </li>
                     </ul>
                   {% elsif entry.label %}
                     <div class="card-text font-weight-light">
