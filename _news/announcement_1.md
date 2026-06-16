@@ -5,4 +5,4 @@ inline: true
 related_posts: false
 ---
 
-Our work **"Spectral Condition for μP under Width-Depth Scaling"** received an **Outstanding Paper Award** at the ICLR Workshop on Deep Generative Models: Theory, Principle, and Efficacy.
+Our work **"Spectral Condition for μP under Width-Depth Scaling"** received an **Outstanding Paper Award** at the ICLR 2026 Workshop on Deep Generative Models: Theory, Principle, and Efficacy.

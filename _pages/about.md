@@ -21,8 +21,8 @@ announcements:
   limit: 5
 
 latest_posts:
-  enabled: false
-  scrollable: false
+  enabled: true
+  scrollable: true
   limit: 3
 ---
 

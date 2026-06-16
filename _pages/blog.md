@@ -61,7 +61,6 @@ pagination:
 <br>
 
 <div class="container featured-posts">
-{% assign featured_posts = featured_posts | slice: 0, 2 %}
 {% assign is_even = featured_posts.size | modulo: 2 %}
 <div class="row row-cols-{% if featured_posts.size <= 2 or is_even == 0 %}2{% else %}3{% endif %}">
 {% for post in featured_posts %}
@@ -104,7 +103,7 @@ pagination:
 
   <ul class="post-list">
 
-    {% assign postlist = site.posts | where_exp: "post", "post.featured != true" | slice: 0, 2 %}
+    {% assign postlist = site.posts | where_exp: "post", "post.featured != true" %}
 
     {% for post in postlist %}
 
