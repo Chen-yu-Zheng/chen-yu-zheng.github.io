@@ -1,0 +1,183 @@
+<!DOCTYPE html> <html lang="en"> <head> <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> <meta charset="utf-8"> <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> <meta http-equiv="X-UA-Compatible" content="IE=edge"> <title> 理解 Weight Decay（一）：EMA 视角 | Chenyu Zheng </title> <meta name="author" content="Chenyu Zheng"> <meta name="description" content="介绍了近期从 Exponential Moving Average (EMA) 视角理解 weight decay 的工作。"> <meta name="keywords" content="machine learning theory, optimization, scalability, deep learning, Chenyu Zheng"> <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; media-src 'self' https:; frame-src 'self' https:; connect-src 'self' https:;"> <style>
+  :root {
+    --max-content-width: 930px;
+  }
+</style> <link rel="stylesheet" href="/assets/css/tailwind.css?v=50c64c15cbb9fd1ce6056fdb8bcb4b62"> <link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.2.0/css/all.min.css" integrity="sha256-MVopmdyC2tYTiJ8wlktf0uh0v4NgT+vNdyVFepi7Q0c=" crossorigin="anonymous"> <link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/academicons@1.9.5/css/academicons.min.css" integrity="sha256-SzrCOBJbGVFMahewkgjwnApaV2+av1DwMAA+/QGLyZw=" crossorigin="anonymous"> <link defer rel="stylesheet" href="https://cdn.jsdelivr.net/npm/scholar-icons@1.0.3/css/scholar-icons.css" integrity="sha256-VY3hHVj/hNX3fYG6wtbA6TcKJQl7+FthzGSyIB64klY=" crossorigin="anonymous"> <link defer rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:100,300,400,500,700|Material+Icons&amp;display=swap"> <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-github.css?v=591dab5a4e56573bf4ef7fd332894c99" media="" id="highlight_theme_light"> <link rel="shortcut icon" href="data:image/svg+xml,&lt;svg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20100%20100%22&gt;&lt;text%20y=%22.9em%22%20font-size=%2290%22&gt;%F0%9F%8E%93&lt;/text&gt;&lt;/svg&gt;"> <link rel="stylesheet" href="/assets/css/main.css?v=f0b101217084a90093badfe99ff9a7d1"> <link rel="canonical" href="https://chen-yu-zheng.github.io/blog/2026/WD-EMA/"> <script src="/assets/js/theme.js?v=7af685e2ba20b37fef545c97b8064050"></script> <link defer rel="stylesheet" href="/assets/css/jekyll-pygments-themes-native.css?v=5847e5ed4a4568527aa6cfab446049ca" media="none" id="highlight_theme_dark"> <script>
+    initTheme();
+  </script> </head> <body class="fixed-top-nav "> <header> <nav id="navbar" class="navbar navbar-light navbar-expand-sm fixed-top" role="navigation"> <div class="container"> <a class="navbar-brand title font-weight-lighter" href="/"> <span class="font-weight-bold">Chenyu</span> Zheng </a> <button class="navbar-toggler collapsed navbar-toggler-main" type="button" data-nav-toggle="navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar top-bar"></span> <span class="icon-bar middle-bar"></span> <span class="icon-bar bottom-bar"></span> </button> <div class="collapse navbar-collapse navbar-collapse-main" id="navbarNav"> <ul class="navbar-nav navbar-menu-list flex-nowrap"> <li class="nav-item "> <a class="nav-link" href="/">About </a> </li> <li class="nav-item "> <a class="nav-link" href="/publications/">Publications </a> </li> <li class="nav-item active"> <a class="nav-link" href="/blog/">Blog <span class="sr-only">(current)</span> </a> </li> <li class="nav-item "> <a class="nav-link" href="/cv/">CV </a> </li> <li class="nav-item"> <button id="search-toggle" type="button" title="Search" aria-label="Open search"> <span class="nav-link">ctrl k <i class="fa-solid fa-magnifying-glass"></i></span> </button> </li> <li class="toggle-container"> <button id="light-toggle" type="button" title="Change theme" aria-label="Change color theme"> <i class="fa-half-sun-moon" id="light-toggle-system"></i> <i class="fa-solid fa-moon" id="light-toggle-dark"></i> <i class="fa-solid fa-sun" id="light-toggle-light"></i> </button> </li> </ul> </div> </div> </nav> <progress id="progress" value="0"> <div class="progress-container"> <span class="progress-bar"></span> </div> </progress> </header> <div class="container mt-5" role="main"> <div class="post"> <header class="post-header"> <h1 class="post-title">理解 Weight Decay（一）：EMA 视角</h1> <p class="post-meta"> Created on September 10, 2026 </p> <p class="post-tags"> <a href="/blog/2026"> <i class="fa-solid fa-calendar fa-sm"></i> 2026 </a>   ·   <a href="/blog/tag/optimization"> <i class="fa-solid fa-hashtag fa-sm"></i> optimization</a>   <a href="/blog/tag/scaling"> <i class="fa-solid fa-hashtag fa-sm"></i> scaling</a>   <a href="/blog/tag/weight-decay"> <i class="fa-solid fa-hashtag fa-sm"></i> weight-decay</a> </p> </header> <article class="post-content"> <div id="markdown-content"> <p>这篇博客介绍了近期从 Exponential Moving Average (EMA) 视角理解 weight decay 的工作，主要参考 How to set AdamW’s weight decay as you scale model and dataset size [1] 和 Power Lines: Scaling Laws for Weight Decay and Batch Size in LLM Pre-training [2] 两篇文章的相关思想和结论。</p> <h2 id="weight-decay-相关背景">Weight Decay 相关背景</h2> <p>Weight decay (WD) 中文名为权重衰减，顾名思义，就是在训练的过程中显式地控制模型的权重大小。记模型权重为 $w$，优化器导致的更新量为 $u$，学习率为 $\eta$，WD 为 $\lambda$，当前主流 WD 的实现方式为 decoupled 形式，可以概括为</p> \[w_{t} = w_{t-1} - \eta (u_t + \lambda w_{t-1}) = (1 - \eta\lambda) w_{t-1} - \eta u_t.\] <p>可以看到，在这种实现框架下，实际作用的权重衰减系数不是 $\lambda$，而是 $\eta \lambda$，我们后续会将其称为 independent weight decay (IWD)。从上式出发，我们也可以很直接地推导出 WD 对模型权重的限制作用。不失一般性，我们假设优化器更新量的大小是有界的，即 $\Vert u_t\Vert \leq C$，那么我们从上式可以推得权重大小的递推关系</p> \[\Vert w_{t}\Vert \leq (1 - \eta\lambda) \Vert w_{t-1}\Vert + \eta \Vert u_t\Vert \leq (1 - \eta\lambda) \Vert w_{t-1}\Vert + \eta C.\] <p>迭代此关系可以递推得到</p> \[\begin{aligned} \Vert w_{t}\Vert &amp;\leq (1 - \eta \lambda)^t \Vert w_0\Vert + \eta C (1 + (1-\eta\lambda) + \cdots + (1 - \eta\lambda)^{t-1}) \\ &amp;= (1 - \eta \lambda)^t \Vert w_0\Vert + \eta C \cdot \frac{1 - (1 - \eta\lambda)^{t}}{\eta \lambda} \\ &amp;\to \frac{C}{\lambda} \quad (t \to \infty). \end{aligned}\] <p>因此，越大的 WD 意味着对模型权重大小更强的控制。从经典学习理论 [3] 的角度来说，越强的权重控制意味着更小的函数空间，更小的模型容量（model capacity、Rademacher complexity），从而能够从理论上给出更小的泛化误差（train error - test error），缓解模型潜在的过拟合问题。事实上，在传统机器学习时代，相对于模型容量，数据量往往较少，比较容易出现过拟合的问题，WD 最初的提出也正是为了缓解此类问题。</p> <p>然而，在如今大模型训练的场景中，数据量和复杂度都远超以往的任务，甚至是远超模型容量，如 Token per Param/TPP 一般是几百上千，这使得过拟合暂时不再是一个重要的问题。如下图所示 [4]，不同于上一个时代的 Cifar-10 分类任务，当前 LLM 训练的 train loss 和 validation loss 是比较 match 的，不存在显著的过拟合问题。</p> <div class="row justify-content-center"> <div class="col-12 col-md-10 mt-3 mt-md-0"> <figure> <picture> <source class="responsive-img-srcset" srcset="/assets/img/2026-09-wd01/underfitting-480.webp 480w,/assets/img/2026-09-wd01/underfitting-800.webp 800w,/assets/img/2026-09-wd01/underfitting-1400.webp 1400w," type="image/webp" sizes="95vw"></source> <img src="/assets/img/2026-09-wd01/underfitting.png" class="img-fluid rounded z-depth-1" width="100%" height="auto" alt="大模型训练过拟合风险不大" data-zoomable="" loading="lazy" onerror="this.onerror=null; document.querySelectorAll('.responsive-img-srcset').forEach(function (n) { n.remove(); });"> </picture> </figure> <div class="caption"> 图 1：大模型训练过拟合风险不大。 </div> </div> </div> <p>那么这是否意味着 WD 在如今主流的大模型训练场景已经失去了作用呢？答案是否定的，WD 对当今的大模型训练效果仍然有着重要的影响。例如下图所示，Kimi 的 Muon-Moonlight [5] 相较于原始 Muon 的一大改进正是加入了 WD，在实际的长程训练中能够显著提升模型效果。</p> <div class="row justify-content-center"> <div class="col-12 col-md-10 mt-3 mt-md-0"> <figure> <picture> <source class="responsive-img-srcset" srcset="/assets/img/2026-09-wd01/muon-kimi-480.webp 480w,/assets/img/2026-09-wd01/muon-kimi-800.webp 800w,/assets/img/2026-09-wd01/muon-kimi-1400.webp 1400w," type="image/webp" sizes="95vw"></source> <img src="/assets/img/2026-09-wd01/muon-kimi.png" class="img-fluid rounded z-depth-1" width="100%" height="auto" alt="WD 对大模型训练仍然非常重要" data-zoomable="" loading="lazy" onerror="this.onerror=null; document.querySelectorAll('.responsive-img-srcset').forEach(function (n) { n.remove(); });"> </picture> </figure> <div class="caption"> 图 2：WD 对大模型训练仍然非常重要。 </div> </div> </div> <p>总而言之，传统的控制模型容量角度的 WD 优势解释已经不太适用于当前的大模型训练场景，理解 WD 需要新的视角和思路。近年来有不少新的理解 WD 的思路，这篇文章就介绍一下近期从 EMA 角度理解 WD 的文章 [1,2]。</p> <h2 id="exponential-moving-average">Exponential Moving Average</h2> <p>因为这篇博客理解 WD 的方法借鉴了 EMA 的形式，所以我们先简单介绍一下 EMA 的必要内容。EMA 原本是一种常用于平滑时间序列数据的方法，定义原始数据为 ${x_t}$，EMA 的输出为 ${s_t}$，则完整的 EMA 过程可以被写为</p> \[\begin{aligned} &amp; s_0 = x_0, \\ &amp; s_t = (1 - \alpha) s_{t-1} + \alpha x_t, \quad t &gt; 0. \end{aligned}\] <p>EMA 的形式相信读者已经非常熟悉，因为它已经广泛地存在于机器学习中，例如 Adam、Muon 等优化器中的动量，模型预训练中常见的权重融合等。我们这里再进一步介绍一下其中的超参 $\alpha$，这是后续理解 WD 的主要依据。毫无疑问，$\alpha$ 是 EMA 中最重要的超参数，它反映了当前输出要考虑之前多久的历史数据，确立了一个有效数据的时间窗口。具体来说，我们将 EMA 展开可以得到</p> \[s_t = (1 - \alpha) s_{t-1} + \alpha x_t = \cdots (1-\alpha)^t x_0 + \sum_{i=1}^t \alpha(1-\alpha)^{t-i} x_i.\] <p>因为 $(1-\alpha)^t + \sum_{i=1}^t \alpha(1-\alpha)^{t-i} =1$，EMA 其实就是对历史数据做了一个加权求和，越远离当前时间的历史数据获得的权重更小，$\alpha$ 就是控制了这个权重的衰减速度。从上面的式子，我们可以得到最近 $T$ 步贡献的权重和为</p> \[\alpha \sum_{i=0}^{T-1} (1-\alpha)^i = 1 - (1 - \alpha)^T.\] <p>从这里我们可以推出来 $\alpha$ 对应的时间窗口。例如，我们认为最近贡献了总权重 $a$（如 0.9）的 $T$ 步历史数据为 EMA 实际考虑的时间窗口，那么可以推出来</p> \[T = \frac{\log(1 - a)}{\log(1 - \alpha)} \approx -\frac{\log(1 - a)}{\alpha}.\] <p>由于 $a$ 是一个常数，我们完全也可以定义 $1/\alpha$ 为 EMA 对应的时间窗口常数。好的，现在我们已经有了足够的背景知识了。</p> <h2 id="从-ema-角度理解-wd">从 EMA 角度理解 WD</h2> <p>为了和 EMA 的形式对应上，我们可以把 WD 的优化过程重写一下：</p> \[w_{t} = (1 - \eta\lambda) w_{t-1} - \eta u_t = (1 - \eta\lambda)w_{t-1} - \eta\lambda \cdot \frac{u_t}{\lambda}.\] <p>可以看到，带 WD 的优化过程也是一个标准的 EMA 过程，对应的 $\alpha = \eta \lambda$，时间窗口常数为 $1/ \eta\lambda$，这说明 IWD 对训练效果的影响至关重要。IWD 越大，越考虑近期的权重更新；IWD 越小，则能够考虑更远的权重情况。另一方面，和标准的 EMA 不同，初始化点和后续的数据点并不是来自一个时间序列：初始化点是 $w_0$，为模型的初始化权重；后续的更新点是 $u_t / \lambda$，为优化器的更新量。因此，即使 IWD 相同，不同的 $\lambda$（或不同的学习率 $\eta$）也会影响权重初始化和优化更新量的关系，从而影响模型效果。但总的来看，<strong>从 EMA 的角度来说，IWD 对结果的影响可能更为重要</strong>。</p> <p>在实际训练中，我们的训练规模/步数可能会发生改变，所以一个更适用于不同训练规模的 IWD 作用度不是时间窗口的绝对大小，而是<strong>时间窗口占整个训练过程的比例</strong>。因此，记训练步数为 $S$，训练数据量为 $D$，训练 batch size 为 $B$，我们定义时间窗口比例常数为</p> \[\tau = \frac{1}{\eta\lambda S} = \frac{B}{\eta\lambda D}.\] <p>[1,2] 均在实际中观察了这个量随训练规模的关系，我们接下来对 [2] 的核心结论进行介绍。</p> <h2 id="实际观察">实际观察</h2> <p>[2] 在不同规模的场景下，系统地探索了如何设置 lr 和 WD，它正是基于 EMA 理论的。为了规避 lr 和 WD 两个维度的 grid search，[2] 用 muP/CompleteP 来设定不同模型大小 $N$ 下的 lr，然后在不同 $N,D$ 规模下 sweep WD，从而得到最优 $\tau$/IWD 的 scaling law。[2] 发现 $\tau$ 和 TPP 有着非常显著的幂律关系，如下图所示</p> <div class="row justify-content-center"> <div class="col-12 col-md-4 mt-3 mt-md-0"> <figure> <picture> <source class="responsive-img-srcset" srcset="/assets/img/2026-09-wd01/tau-tpp-480.webp 480w,/assets/img/2026-09-wd01/tau-tpp-800.webp 800w,/assets/img/2026-09-wd01/tau-tpp-1400.webp 1400w," type="image/webp" sizes="95vw"></source> <img src="/assets/img/2026-09-wd01/tau-tpp.png" class="img-fluid rounded z-depth-1" width="100%" height="auto" alt="tau 和 TPP 的幂律关系" data-zoomable="" loading="lazy" onerror="this.onerror=null; document.querySelectorAll('.responsive-img-srcset').forEach(function (n) { n.remove(); });"> </picture> </figure> <div class="caption"> 图 3：tau 和 TPP 的幂律关系。 </div> </div> </div> <p>基于 muP 的 lr 调整和 IWD 的 scaling law，我们可以在大规模下实现对 lr 和 WD 较为科学的设置。</p> <h2 id="references">References</h2> <ol> <li>How to set AdamW’s weight decay as you scale model and dataset size, ICML, 2025</li> <li>Power Lines: Scaling Laws for Weight Decay and Batch Size in LLM Pre-training, NeurIPS, 2025</li> <li>Foundations of Machine Learning, 2018</li> <li>Rethinking Conventional Wisdom in Machine Learning: From Generalization to Scaling, 2025</li> <li>Muon is Scalable for LLM Training, 2025</li> </ol> </div> </article> <br> <hr> <br> <h2 class="text-3xl font-semibold mb-4 mt-12">Enjoy Reading This Article?</h2> <p class="mb-2">Here are some more articles you might like to read next:</p> <ul class="list-disc pl-7 my-3 space-y-2 marker:text-[var(--global-theme-color)]"> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2026/CBS03/">ELDE：一种科学实用的 Critical Batch Size 估计方法</a> </li> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2026/CBS02/">论文阅读：Critical Batch Size 估计方法的近期进展</a> </li> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2026/CBS/">经典回顾：OpenAI Critical Batch Size</a> </li> <li class="leading-relaxed"> <a class="underline decoration-1 hover:text-[var(--global-hover-color)]" href="/blog/2026/muP-01/">muP 漫游 (一)：muP 是什么？我们为何需要 muP？</a> </li> </ul> </div> </div> <footer class="fixed-bottom" role="contentinfo"> <div class="container mt-0"> © Copyright 2026 Chenyu Zheng. Powered by <a href="https://jekyllrb.com/" target="_blank" rel="external nofollow noopener">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio" rel="external nofollow noopener" target="_blank">al-folio</a> theme. Hosted by <a href="https://pages.github.com/" target="_blank" rel="external nofollow noopener">GitHub Pages</a>. </div> </footer> <script>
+  window.alFolio = {
+    compatBootstrap: false
+  };
+</script> <script src="/assets/js/nav-toggle.js?v=141bd79a73ebc0f0b6ea58e440ae79fc"></script> <script defer src="https://cdn.jsdelivr.net/npm/masonry-layout@4.2.2/dist/masonry.pkgd.min.js" integrity="sha256-Nn1q/fx0H7SNLZMQ5Hw5JLaTRZp0yILA/FRexe19VdI=" crossorigin="anonymous"></script> <script defer src="https://cdn.jsdelivr.net/npm/imagesloaded@5.0.0/imagesloaded.pkgd.min.js" integrity="sha256-htrLFfZJ6v5udOG+3kNLINIKh2gvoKqwEhHYfTTMICc=" crossorigin="anonymous"></script> <script defer src="/assets/js/masonry.js?v=e49affc7bd2646f6acdad1dbe02c2359" type="text/javascript"></script> <script defer src="https://cdn.jsdelivr.net/npm/plotly.js@3.0.1/dist/plotly.min.js" integrity="sha256-oy6Be7Eh6eiQFs5M7oXuPxxm9qbJXEtTpfSI93dW16Q=" crossorigin="anonymous"></script> <script defer src="/assets/al_charts/js/plotly-setup.js" type="text/javascript"></script> <script defer type="text/javascript" id="MathJax-script" src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js" integrity="sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI=" crossorigin="anonymous"></script> <script src="/assets/al_math/js/mathjax-setup.js"></script> <script defer src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6" crossorigin="anonymous"></script> <script src="/assets/js/tooltips-setup.js?v=fe487e99db6c43751e6e7bdb2d6a0611"></script> <script src="/assets/js/no_defer.js?v=53b1b1a645525975c963ce8bf8bfefcf"></script> <script defer src="/assets/js/common.js?v=87baac90f765f2f3362dcf6aaf312a8a"></script> <script defer src="/assets/js/copy_code.js?v=c8a01c11a92744d44b093fc3bda915df" type="text/javascript"></script> <script defer src="/assets/js/jupyter_new_tab.js?v=896d254890d9b47f0281f63bfccf0dee"></script> <script async src="https://d1bxh8uas1mnw7.cloudfront.net/assets/embed.js"></script> <script async src="https://badge.dimensions.ai/badge.js"></script> <script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.1.0/dist/medium-zoom.min.js" integrity="sha256-ZgMyDAIYDYGxbcpJcfUnYwNevG/xi9OHKaR/8GK+jWc=" crossorigin="anonymous"></script> <script defer src="/assets/al_img_tools/js/zoom.js"></script> <script defer src="/assets/js/progress-bar.js?v=499464c5c63ced6cf7ad62509f1e2610" type="text/javascript"></script> <script src="https://cdn.jsdelivr.net/npm/vanilla-back-to-top@7.2.1/dist/vanilla-back-to-top.min.js" integrity="sha256-uMJJ3EoTyfRBoTbR+lrfu1uRQ87RZG8AR3cVNuQVeFg=" crossorigin="anonymous"></script> <script>
+    addBackToTop();
+  </script> <script type="module" src="/assets/al_search/js/search/ninja-keys.min.js"></script> <ninja-keys hidebreadcrumbs noautoloadmdicons placeholder="Type to start searching"></ninja-keys> <script src="/assets/al_search/js/search-setup.js"></script> <script>
+// get the ninja-keys element
+const ninja = document.querySelector('ninja-keys');
+
+// add the home and posts menu items
+ninja.data = [{
+    id: "nav-about",
+    title: "About",
+    section: "Navigation",
+    handler: () => {
+      window.location.href = "/";
+    },
+  },{id: "nav-publications",
+          title: "Publications",
+          description: "* indicates the equal contribution, † indicates the corresponding author.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/publications/";
+          },
+        },{id: "nav-blog",
+          title: "Blog",
+          description: "",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/blog/";
+          },
+        },{id: "nav-cv",
+          title: "CV",
+          description: "Experience, honors, teaching, academic services, talks, and miscellaneous notes.",
+          section: "Navigation",
+          handler: () => {
+            window.location.href = "/cv/";
+          },
+        },{id: "post-理解-weight-decay-一-ema-视角",
+        
+          title: "理解 Weight Decay（一）：EMA 视角",
+        
+        description: "介绍了近期从 Exponential Moving Average (EMA) 视角理解 weight decay 的工作。",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2026/WD-EMA/";
+          
+        },
+      },{id: "post-elde-一种科学实用的-critical-batch-size-估计方法",
+        
+          title: "ELDE：一种科学实用的 Critical Batch Size 估计方法",
+        
+        description: "基于之前介绍的两大类 CBS 估计方法，博采众长，提出了一种科学实用的 CBS 估计方法。",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2026/CBS03/";
+          
+        },
+      },{id: "post-论文阅读-critical-batch-size-估计方法的近期进展",
+        
+          title: "论文阅读：Critical Batch Size 估计方法的近期进展",
+        
+        description: "针对 OpenAI 原始 CBS 论文的问题，选取介绍两类 CBS 估计方法的近期进展。",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2026/CBS02/";
+          
+        },
+      },{id: "post-经典回顾-openai-critical-batch-size",
+        
+          title: "经典回顾：OpenAI Critical Batch Size",
+        
+        description: "回顾总结 OpenAI 的 CBS 经典工作 An Empirical Model of Large-Batch Training。",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2026/CBS/";
+          
+        },
+      },{id: "post-mup-漫游-一-mup-是什么-我们为何需要-mup",
+        
+          title: "muP 漫游 (一)：muP 是什么？我们为何需要 muP？",
+        
+        description: "介绍大模型训练的两大难题，简单理论分析 standard practice 的缺陷，从而引出 muP 概念并介绍其作用。",
+        section: "Posts",
+        handler: () => {
+          
+            window.location.href = "/blog/2026/muP-01/";
+          
+        },
+      },{id: "news-our-work-quot-scaling-diffusion-transformers-efficiently-via-μp-quot-was-accpepted-by-neurips-2025",
+          title: 'Our work **&amp;quot;Scaling Diffusion Transformers Efficiently via μP&amp;quot;** was accpepted by NeurIPS 2025....',
+          description: "",
+          section: "News",},{id: "news-i-was-supported-by-the-young-scientists-ph-d-fund-from-nsfc-国家自然科学基金博士生专项",
+          title: 'I was supported by the **Young Scientists (Ph.D.) Fund from NSFC (国家自然科学基金博士生专项)**.',
+          description: "",
+          section: "News",},{id: "news-i-gave-a-talk-quot-an-overview-of-maximal-update-parametrization-μp-quot-at-thu-slides-assets-pdf-slides-2026-4-9-mup-tutorial-pdf",
+          title: 'I gave a talk **&amp;quot;An Overview of Maximal Update Parametrization (μP)&amp;quot;** at THU....',
+          description: "",
+          section: "News",},{id: "news-our-work-quot-spectral-condition-for-μp-under-width-depth-scaling-quot-received-an-outstanding-paper-award-at-the-iclr-2026-workshop-on-deep-generative-models-theory-principle-and-efficacy",
+          title: 'Our work **&amp;quot;Spectral Condition for μP under Width-Depth Scaling&amp;quot;** received an **Outstanding Paper...',
+          description: "",
+          section: "News",},{
+        id: 'social-cv',
+        title: 'CV',
+        section: 'Socials',
+        handler: () => {
+          window.open("/assets/pdf/chenyu_cv_en.pdf", "_blank");
+        },
+      },{
+        id: 'social-email',
+        title: 'email',
+        section: 'Socials',
+        handler: () => {
+          window.open("mailto:%63%68%65%6E%79%75.%7A%68%65%6E%67%36%36%36@%67%6D%61%69%6C.%63%6F%6D", "_blank");
+        },
+      },{
+        id: 'social-github',
+        title: 'GitHub',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://github.com/Chen-yu-Zheng", "_blank");
+        },
+      },{
+        id: 'social-scholar',
+        title: 'Google Scholar',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://scholar.google.com/citations?user=QDfsVgYAAAAJ", "_blank");
+        },
+      },{
+        id: 'social-rss',
+        title: 'RSS Feed',
+        section: 'Socials',
+        handler: () => {
+          window.open("/feed.xml", "_blank");
+        },
+      },{
+        id: 'social-custom_social',
+        title: 'Custom_social',
+        section: 'Socials',
+        handler: () => {
+          window.open("https://www.zhihu.com/people/zhi-zuo-ren-23/posts", "_blank");
+        },
+      },{
+      id: 'light-theme',
+      title: 'Change theme to light',
+      description: 'Change the theme of the site to Light',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("light");
+      },
+    },
+    {
+      id: 'dark-theme',
+      title: 'Change theme to dark',
+      description: 'Change the theme of the site to Dark',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("dark");
+      },
+    },
+    {
+      id: 'system-theme',
+      title: 'Use system default theme',
+      description: 'Change the theme of the site to System Default',
+      section: 'Theme',
+      handler: () => {
+        setThemeSetting("system");
+      },
+    },];
+
+</script> <script src="/assets/al_search/js/shortcut-key.js"></script> </body> </html>
