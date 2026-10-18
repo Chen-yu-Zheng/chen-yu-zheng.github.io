@@ -26,6 +26,6 @@ latest_posts:
   limit: 3
 ---
 
-I am a third-year Ph.D. student in the [GSAI-ML Group](https://github.com/ML-GSAI), Renmin University of China, advised by Prof. [Chongxuan Li](https://zhenxuan00.github.io/) fortunately. Currently, I am also a research intern at [ByteDance Seed](https://seed.bytedance.com/en/). Before that, I received my B.E. degree from the School of Computer Science, [Wuhan University](https://www.whu.edu.cn/) in 2023.
+I am a fourth-year Ph.D. student in the [GSAI-ML Group](https://github.com/ML-GSAI), Renmin University of China, advised by Prof. [Chongxuan Li](https://zhenxuan00.github.io/) fortunately. Before that, I received my B.E. degree from the School of Computer Science, [Wuhan University](https://www.whu.edu.cn/) in 2023.
 
-My primary interest is machine learning (theory). Recently, I focus on **scaling and optimization and in deep learning**.
+My primary interest is machine learning (theory), with an emphasis on **scaling and optimization in deep learning**. Currently, I am a research intern in the [Tencent Hunyuan](https://hy.tencent.ai/) Pretraining Team, working on LLM scaling. Prior to that, I interned on pretraining research at [ByteDance Seed](https://seed.bytedance.com/en/) Vision.

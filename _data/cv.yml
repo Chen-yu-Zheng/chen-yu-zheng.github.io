@@ -36,14 +36,23 @@ cv:
           - "Graduating as a Outstanding Graduate."
 
     Experience:
-      - company: ByteDance Seed
-        position: Top-Seed Research Intern
+      - company: Tencent Hunyuan Pretraining Team
+        position: Qingyun Research Intern
         location: Beijing, China
-        start_date: 2024-11
+        start_date: 2026-09
         end_date: Present
         # url: https://seed.bytedance.com/en/
         highlights:
-          - "Working on μP theory and its applications to scaling large models."
+          - "Working on the scaling of large language models."
+
+      - company: ByteDance Seed Vision
+        position: Top-Seed Research Intern
+        location: Beijing, China
+        start_date: 2024-11
+        end_date: 2026-08
+        # url: https://seed.bytedance.com/en/
+        highlights:
+          - "Worked on μP theory and its applications to scaling T2I models."
 
       - company: RSIDEA Group, LIESMARS, Wuhan University
         position: Research Intern
@@ -104,13 +113,13 @@ cv:
           - "IEEE Transactions on Signal Processing (TSP)."
       - bullet: "**Conference Reviewer**"
         subitems:
-          - "Advances in Neural Information Processing Systems (NeurIPS): 2024, 2025 (**Top Reviewer**)."
-          - "International Conference on Machine Learning (ICML): 2025, 2026."
-          - "International Conference on Learning Representations (ICLR): 2025, 2026."
-          - "International Conference on Artificial Intelligence and Statistics (AISTATS): 2025, 2026."
+          - "NeurIPS: 2024, 2025 (**Top Reviewer**)."
+          - "ICML: 2025, 2026."
+          - "ICLR: 2025, 2026."
+          - "AISTATS: 2025, 2026."
       - bullet: "**Conference Program Committee**"
         subitems:
-          - "Association for the Advancement of Artificial Intelligence (AAAI): 2026."
+          - "AAAI: 2026."
 
     Teaching:
       - bullet: "**Advanced Linear Algebra**, TA, 2025 Fall"
